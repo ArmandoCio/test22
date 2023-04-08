@@ -10,35 +10,48 @@ import io
 app = Flask(__name__)
 
 # Load the saved machine learning model
-model2 = tf.keras.models.load_model('/Users/armandociobanu/Documents/GitHub/test22/save_at_50.keras')
+model= tf.keras.models.load_model('/Users/armandociobanu/Documents/GitHub/test22/save_at_50.keras')
 
-class_names2 = ["Recyclable", "Non-Recyclable"]
+class_names = ["Recyclable", "Non-Recyclable"]
 
 
 @app.route('/', methods=['POST'])
 def predict():
-    # Read the image from the request as a binary file
-    image_data = request.get_data()
+    try:
+        # Read the image from the request as a binary file
+        image_data = request.get_data()
 
-    # convert the binary data to an image using PIL
-    image = Image.open(io.BytesIO(image_data))
+        # convert the binary data to an image using PIL
+        image = Image.open(io.BytesIO(image_data))
 
-    # Decode the JPEG image
-    image = tf.image.resize(image, (180, 180))
+        # Resize the image to match the input size of the model
+        image = image.resize((180, 180))
 
-    # Add the batch dimension
-    image_array = keras.preprocessing.image.img_to_array(image)
-    image_array = tf.expand_dims(image_array, 0)  # Create batch axis
+        # Convert the PIL image to a NumPy array
+        image_array = np.asarray(image)
 
-    prediction2 = model2.predict(image_array)
-    print(prediction2[0])
-    test2 = np.argmax(prediction2[0])
-    print(class_names2[test2])
+        # Normalize the image array
+        normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
 
-    return json.dumps(class_names2[test2])
+        # Add the batch dimension
+        image_tensor = np.expand_dims(normalized_image_array, axis=0)
+
+        # Predict the class probabilities using the model
+        predictions = model.predict(image_tensor)
+
+        # Get the class label with the highest probability
+        predicted_class = class_names[np.argmax(predictions)]
+
+        # Return the predicted class as a JSON response
+        response = {
+            'predicted_class': predicted_class
+        }
+        return jsonify(response)
+    except Exception as e:
+        print("Error: ", e)
+        return "Error: " + str(e), 500  # return an HTTP 500 error code
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
-
-
-
