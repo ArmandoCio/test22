@@ -10,7 +10,7 @@ import io
 app = Flask(__name__)
 
 # Load the saved machine learning model
-model= tf.keras.models.load_model('/Users/armandociobanu/Documents/GitHub/test22/save_at_50.keras')
+model= tf.keras.models.load_model('save_at_50.keras')
 
 class_names = ["Recyclable", "Non-Recyclable"]
 
