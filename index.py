@@ -10,7 +10,7 @@ import io
 app = Flask(__name__)
 
 # Load the saved machine learning model
-model2 = tf.keras.models.load_model('save_at_50.keras')
+model2 = tf.keras.models.load_model('/Users/armandociobanu/Documents/GitHub/test22/save_at_50.keras')
 
 class_names2 = ["Recyclable", "Non-Recyclable"]
 
@@ -36,5 +36,9 @@ def predict():
     print(class_names2[test2])
 
     return json.dumps(class_names2[test2])
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0')
+
 
 
